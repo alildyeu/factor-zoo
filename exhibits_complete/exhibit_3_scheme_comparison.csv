@@ -1,0 +1,4 @@
+Weighting Scheme,Total Factors,No. Factors (t > 3),No. Factors (t > 2),No. Factors (GRS 5%),Final GRS,Final p(GRS)
+VW_cap,11,11,>30,>30,1.70,0.000
+VW,10,10,>30,>30,1.54,0.000
+EW,11,11,>30,>30,2.90,0.000
