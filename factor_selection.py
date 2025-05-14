@@ -343,9 +343,9 @@ class IterativeFactorSelection:
             })
             
             # Critère d'arrêt: plus de facteurs significatifs
-            if best_factor_results['n_significant'] == 0:
+            '''if best_factor_results['n_significant'] == 0:
                 print(f"\nArrêt à l'itération {iteration+1}: Plus de facteurs significatifs avec t > {self.significance_threshold}")
-                break
+                break'''
         
         # Préparer le DataFrame des résultats
         self.results = pd.DataFrame(results)

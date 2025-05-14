@@ -9,6 +9,7 @@ warnings.filterwarnings('ignore')
 
 from data_loader import DataLoader
 from factor_selection import IterativeFactorSelection
+from clusters import cluster_mapping
 
 
 class GlobalFactorAnalysis:
@@ -149,10 +150,13 @@ def run_analysis():
     analyzer.select_global_factors()
     print("Analyse par région...")
     results_df = analyzer.analyze_regions()
+    # Ajout du cluster associé au facteur
+    results_df.insert(2, 'Cluster', results_df['Factor'].map(cluster_mapping))
     return results_df
 
 
 if __name__ == "__main__":
     results = run_analysis()
+    results.to_csv('global_factor_analysis.csv', index=False)
     print("\nRésultats finaux :")
     print(results.to_string())
