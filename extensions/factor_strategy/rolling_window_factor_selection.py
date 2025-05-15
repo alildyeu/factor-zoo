@@ -20,7 +20,7 @@ class RollingWindowFactorSelection:
     def __init__(self, weighting: str = 'VW_cap', config: RollingWindowConfig = None):
         self.weighting = weighting
         self.config = config if config else RollingWindowConfig()
-        self.data_loader = DataLoader(weighting=weighting)
+        self.data_loader = DataLoader(weighting=weighting, extension=True)
         self.factors_df, self.market_return = self.data_loader.load_factor_data('US')
         self.cluster_mapping = cluster_mapping
 

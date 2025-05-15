@@ -5,9 +5,9 @@ warnings.filterwarnings('ignore')
 
 class DataLoader:
     """Chargement et nettoyage des données de facteurs."""
-    def __init__(self, weighting, start_date="1971-11-01", end_date="2021-12-31"):
+    def __init__(self, weighting, start_date="1971-11-01", end_date="2021-12-31", extension=False):
         self.weighting = weighting
-        self.data_path = f'data/{self.weighting}.csv'
+        self.data_path = f'../../data/{self.weighting}.csv' if extension else f'data/{self.weighting}.csv'
         self.start_date = pd.to_datetime(start_date)
         self.end_date = pd.to_datetime(end_date)
         
