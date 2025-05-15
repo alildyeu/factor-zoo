@@ -7,7 +7,7 @@ from factor_selection import IterativeFactorSelection
 from clusters import create_factor_clusters
 from visualisation import FactorZooPlotter
 
-def main(weighting_schemes : list, start_date : str = '1993-08-01', end_date : str = '2021-12-31', region : str = 'US'):
+def main(weighting_schemes : list, start_date : str = '1993-08-01', end_date : str = '2021-12-31', region : str = 'world'):
 
     results_dict = {}
 

@@ -25,7 +25,7 @@ class GlobalFactorAnalysis:
         factors_df, market_return = data_loader.load_factor_data(region)
         return factors_df.fillna(0), market_return.fillna(0)
 
-    def select_global_factors(self):
+    def select_global_factors(self, max_factors=30):
         self.global_factors, self.global_market = self.load_data('world')
         selector = IterativeFactorSelection(self.global_factors, self.global_market)
         global_results = selector.select_factors_t_std(t_stat_stop=False)
@@ -60,7 +60,7 @@ class GlobalFactorAnalysis:
         return self._create_results_table()
 
     def _compute_stats(self, factors_df, market_return, selected_factors):
-        X = pd.concat([market_return] +
+        X = pd.concat([market_return.to_frame('market')] +
                       [factors_df[f] for f in selected_factors], axis=1)
 
         alphas, residuals, t_stats = [], [], []
