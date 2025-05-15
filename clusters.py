@@ -220,6 +220,9 @@ def create_factor_clusters():
 
 
 cluster_mapping = {
+    # Market
+    "market": "Market",
+
     # Accruals
     "cowc_gr1a": "Accruals",
     "oaccruals_at": "Accruals",
