@@ -59,7 +59,7 @@ class RollingWindowFactorSelection:
                 )
 
                 # Utilise la méthode de sélection basée sur t-stat
-                selector.select_factors_t_std(threshold=threshold)
+                selector.select_factors_t_std(t_stat_stop=False)
 
                 if not selector.results.empty:
                     # last_row = selector.results.iloc[-1]
@@ -156,8 +156,8 @@ class RollingWindowFactorSelection:
         years = data['year'].tolist()
 
         # Tracer la ligne du total
-        total = data['n_factors']
-        ax.plot(x_pos, total, 'k-', linewidth=2, label='Total Factors', marker='o')
+        '''total = data['n_factors']
+        ax.plot(x_pos, total, 'k-', linewidth=2, label='Total Factors', marker='o')'''
 
         # Barres empilées
         bottom = np.zeros(len(data))
@@ -172,9 +172,20 @@ class RollingWindowFactorSelection:
         # Configuration des axes
         ax.set_title(title, pad=20)
         ax.set_ylabel('Number of Factors')
-        ax.grid(True, linestyle=':', alpha=0.5)
+        ax.grid(True, axis='y', alpha=0.5)
         ax.set_xticks(x_pos)
-        ax.set_xticklabels(years, rotation=45)
+        ax.set_xticklabels(years, rotation=90)
+
+        # Définir les graduations selon le threshold
+        if "t > 2" in title:
+            # Pour le graphique t > 2, graduations par pas de 5
+            ymax = np.ceil(data['n_factors'].max() / 5) * 5
+            ax.set_yticks(np.arange(0, ymax + 1, 5))
+        else:
+            # Pour le graphique t > 3, graduations par nombres entiers
+            y_ticks = ax.get_yticks()
+            y_ticks_int = [int(y) for y in y_ticks]
+            ax.set_yticks(y_ticks_int)
 
         # Définir les limites pour que le graphique soit bien affiché
         ax.set_xlim(-0.5, len(x_pos) - 0.5)

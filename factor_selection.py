@@ -68,7 +68,7 @@ class IterativeFactorSelection:
         except:
             return np.nan, np.nan, np.nan
 
-    def select_factors_t_std(self, max_factors=30):
+    def select_factors_t_std(self, max_factors=30, t_stat_stop=True, threshold=3):
         """Sélection itérative des facteurs avec loi de student."""
 
         available_factors = list(self.factors_df.columns)
@@ -218,8 +218,8 @@ class IterativeFactorSelection:
             print(f"GRS statistic: {grs_stat:.3f}, p-value: {grs_pval:.3f}")
 
             # Arrêter si plus de facteurs significatifs
-            if n_significant_t3 == 0:
-                print(f"\nArrêt à l'itération {iteration + 1}: Plus de facteurs significatifs avec t > 3.0")
+            if t_stat_stop and ((threshold == 3.0 and n_significant_t3 == 0) or (threshold == 2 and n_significant_t2 == 0)):
+                print(f"\nArrêt à l'itération {iteration + 1}: Plus de facteurs significatifs avec t > {threshold}")
                 break
 
         self.results = pd.DataFrame(results)
