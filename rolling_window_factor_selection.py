@@ -59,7 +59,7 @@ class RollingWindowFactorSelection:
                 )
 
                 # Utilise la méthode de sélection basée sur t-stat
-                selector.select_factors_t_std(t_stat_stop=False)
+                selector.select_factors_t_std(threshold=threshold)
 
                 if not selector.results.empty:
                     # last_row = selector.results.iloc[-1]

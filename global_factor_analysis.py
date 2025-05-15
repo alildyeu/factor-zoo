@@ -28,7 +28,7 @@ class GlobalFactorAnalysis:
     def select_global_factors(self, max_factors=30):
         self.global_factors, self.global_market = self.load_data('world')
         selector = IterativeFactorSelection(self.global_factors, self.global_market)
-        global_results = selector.select_factors_t_std(max_factors=max_factors)
+        global_results = selector.select_factors_t_std(t_stat_stop=False)
         self.selected_factors = global_results['factor'].tolist()
         return global_results
 
