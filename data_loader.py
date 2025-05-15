@@ -7,22 +7,27 @@ class DataLoader:
     """Chargement et nettoyage des données de facteurs."""
     def __init__(self, weighting, start_date="1971-11-01", end_date="2021-12-31", extension=False):
         self.weighting = weighting
-        self.data_path = f'../../data/{self.weighting}.csv' if extension else f'data/{self.weighting}.csv'
+        self.factors_path = f'../../data/{self.weighting}.csv' if extension else f'data/{self.weighting}.csv'
+        self.market_path = f'../../data/{self.weighting}_market.csv' if extension else f'data/{self.weighting}_market.csv'
         self.start_date = pd.to_datetime(start_date)
         self.end_date = pd.to_datetime(end_date)
         
     def load_factor_data(self, region = 'world'):
         """Charge les données des facteurs et extrait le rendement du marché."""
-        print(f"Chargement des données depuis {self.data_path}")
-        
-        df = pd.read_csv(self.data_path)
+        df = pd.read_csv(self.factors_path)
         df['date'] = pd.to_datetime(df['date'])
         df = df[(df['date'] >= self.start_date) & (df['date'] <= self.end_date)]
 
+        market = pd.read_csv(self.market_path)
+        market['date'] = pd.to_datetime(market['date'])
+        market = market[(market['date'] >= self.start_date) & (market['date'] <= self.end_date)]
+
         if region == 'US':
             df = df[df['location'] == 'usa']
+            market = market[market['location'] == 'usa']
         elif region == 'ex US':
             df = df[df['location'] != 'usa']
+            market = market[market['location'] != 'usa']
 
         # Pondération des facteurs par le nombre de stocks
         if region in ['ex US', 'world']:
@@ -31,14 +36,16 @@ class DataLoader:
             stock_count = df.groupby(['date', 'name'])['n_stocks'].sum()
             pivot_df = (weighted_sum / stock_count).unstack()
 
+            market['weighted_ret'] = market['ret'] * market['n_stocks']
+            weighted_sum = market.groupby(['date'])['weighted_ret'].sum()
+            stock_count = market.groupby(['date'])['n_stocks'].sum()
+            pivot_market = weighted_sum / stock_count
+
         else:
             pivot_df = df.pivot(index='date', columns='name', values='ret')
+            pivot_market = market.pivot(index='date', columns='name', values='ret')
 
-        market_return = pivot_df['market_equity']
-        factors_df = pivot_df.drop(columns=['market_equity'])
-
-        print(f"Données chargées: {len(factors_df)} périodes (mois), {factors_df.shape[1]} facteurs")
-        return factors_df, market_return
+        return pivot_df, pivot_market
     
     def diagnostic_check(self, factors_df, market_return):
         """Vérifie les données et suggère des corrections."""
