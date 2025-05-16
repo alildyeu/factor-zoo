@@ -89,10 +89,10 @@ class IterativeFactorSelection:
             # Construire le modèle de base
             if iteration == 0:
                 # Premier passage : juste le marché
-                X_base = market_normalized.to_frame('market')
+                X_base = market_normalized
             else:
                 # Passes suivants : marché + facteurs sélectionnés
-                X_base = pd.concat([market_normalized.to_frame('market')] +
+                X_base = pd.concat([market_normalized] +
                                    [factors_normalized[f] for f in selected_factors], axis=1)
 
             # Tester chaque facteur disponible
@@ -104,7 +104,7 @@ class IterativeFactorSelection:
                 y = factors_normalized[factor]
 
                 # Aligner les données
-                valid_idx = ~(y.isna() | X_base.isna().any(axis=1))
+                valid_idx = ~(y.isna() | X_base.isna().any())
 
                 if valid_idx.sum() < 50:  # Au moins 50 observations
                     continue
@@ -143,7 +143,7 @@ class IterativeFactorSelection:
             print(f"\nFacteur sélectionné: {best_factor} (t-stat: {best_t_stat:.3f})")
 
             # Calculer les statistiques pour ce modèle
-            X_current = pd.concat([market_normalized.to_frame('market')] +
+            X_current = pd.concat([market_normalized] +
                                   [factors_normalized[f] for f in selected_factors], axis=1)
 
             # Statistiques des facteurs restants
@@ -249,11 +249,11 @@ class IterativeFactorSelection:
             # Construire le modèle de base pour cette itération
             if iteration == 0:
                 # Premier passage : juste le marché (CAPM)
-                X_base = market_normalized.to_frame('market')
+                X_base = market_normalized
             else:
                 # Passes suivantes : marché + facteurs déjà sélectionnés
-                X_base = pd.concat([market_normalized.to_frame('market')] + 
-                                 [factors_normalized[f].to_frame(f) for f in selected_factors], axis=1)
+                X_base = pd.concat([market_normalized] +
+                                 [factors_normalized[f] for f in selected_factors], axis=1)
             
             # Tester chaque facteur candidat disponible
             best_factor = None
@@ -264,7 +264,7 @@ class IterativeFactorSelection:
             
             for factor in available_factors:
                 # Créer le modèle augmenté avec ce facteur candidat
-                X_augmented = pd.concat([X_base, factors_normalized[factor].to_frame(factor)], axis=1)
+                X_augmented = pd.concat([X_base, factors_normalized[factor]], axis=1)
                 
                 # Calculer les alphas et résidus pour tous les autres facteurs par rapport à ce modèle
                 alphas = []
@@ -360,8 +360,8 @@ class IterativeFactorSelection:
             # Calculer Sharpe ratio pour chaque modèle
             for i in range(len(self.results)):
                 factors_in_model = selected_factors[:i+1]
-                X_model = pd.concat([market_normalized.to_frame('market')] + 
-                                  [factors_normalized[f].to_frame(f) for f in factors_in_model], axis=1)
+                X_model = pd.concat([market_normalized] +
+                                  [factors_normalized[f] for f in factors_in_model], axis=1)
                 
                 # Calculer Sharpe ratio annualisé
                 if X_model.shape[1] > 1:
@@ -373,3 +373,14 @@ class IterativeFactorSelection:
                     self.results.loc[i, 'SR'] = 0.0
         
         return self.results
+
+if __name__ == "__main__":
+    # Exemple d'utilisation
+    data_loader = DataLoader('VW_cap')
+    factors_df, market_return = data_loader.load_factor_data('US')
+
+    selector = IterativeFactorSelection(factors_df, market_return)
+    results = selector.select_factors_t_std(t_stat_stop=False)
+
+    print("\nRésultats de la sélection des facteurs:")
+    print(results)
