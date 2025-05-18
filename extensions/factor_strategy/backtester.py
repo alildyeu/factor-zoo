@@ -124,7 +124,7 @@ class FactorStrategyBacktester:
 
         return factors_with_t_stats
 
-    def _calculate_weights(self, factors_with_t_stats, market_weight=0.3, weight_type='t_stat'):
+    '''def _calculate_weights(self, factors_with_t_stats, market_weight=0.3, weight_type='t_stat'):
         """
         Calcule la pondération des facteurs
 
@@ -153,7 +153,7 @@ class FactorStrategyBacktester:
             has_market = 'market' in factors_list
 
             # Réduire la période d'historique pour améliorer la stabilité
-            lookback_window = 52 * 5  # 5 ans de données hebdomadaires
+            lookback_window = 52 * 15  # 15 ans de données hebdomadaires
 
             # Récupérer les rendements historiques pour l'optimisation
             latest_date = max(self.selector.factors_df.index)
@@ -311,9 +311,328 @@ class FactorStrategyBacktester:
             if 'market' in factors_with_t_stats:
                 weights['market'] = market_weight
 
+            return weights'''
+
+    def _calculate_weights(self, factors_with_t_stats, market_weight=0.3, weight_type='t_stat'):
+        """
+        Calcule la pondération des facteurs
+
+        Args:
+            factors_with_t_stats: Dictionnaire {facteur: t_stat}
+            market_weight: Poids fixe pour le marché (uniquement utilisé si weight_type='t_stat')
+            weight_type: Type de pondération ('equal', 't_stat', 'erc' ou 'max_sharpe')
+
+        Returns:
+            Dictionnaire des poids normalisés
+        """
+        if not factors_with_t_stats:
+            return {}
+
+        # Mode Maximisation du Ratio de Sharpe
+        if weight_type == 'max_sharpe':
+            # Récupérer la liste des facteurs
+            factors_list = list(factors_with_t_stats.keys())
+
+            # S'il n'y a qu'un seul facteur, lui donner tout le poids
+            if len(factors_list) == 1:
+                return {factors_list[0]: 1.0}
+
+            # Séparer market des autres facteurs
+            other_factors = [f for f in factors_list if f != 'market']
+            has_market = 'market' in factors_list
+
+            # Période d'historique pour l'optimisation
+            lookback_window = 52 * 15  # 10 ans de données hebdomadaires
+
+            # Récupérer les rendements historiques pour l'optimisation
+            latest_date = max(self.selector.factors_df.index)
+            history_start = pd.Timestamp(latest_date) - pd.Timedelta(weeks=lookback_window)
+
+            # Collecter les rendements
+            returns_data = {}
+
+            # Ajouter les rendements des facteurs standards
+            valid_factors = [f for f in other_factors if f in self.selector.factors_df.columns]
+            for factor in valid_factors:
+                factor_data = self.selector.factors_df.loc[
+                    self.selector.factors_df.index >= history_start, factor
+                ].dropna()
+                if not factor_data.empty:
+                    returns_data[factor] = factor_data
+
+            # Ajouter les rendements du marché si nécessaire
+            if has_market:
+                market_data = self.selector.market_return.loc[
+                    self.selector.market_return.index >= history_start
+                    ].dropna()
+                if not market_data.empty:
+                    returns_data['market'] = market_data
+
+            # Si aucun facteur valide, utiliser équipondération
+            if not returns_data:
+                print("Aucun facteur valide pour Max Sharpe, utilisation méthode équipondérée")
+                return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+            # Créer un DataFrame des rendements alignés
+            returns_df = pd.DataFrame(returns_data)
+            returns_history = returns_df.dropna()
+
+            if returns_history.empty or returns_history.shape[0] < 30:
+                print("Historique insuffisant pour Max Sharpe, utilisation méthode équipondérée")
+                return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+            try:
+                import scipy.optimize as sco
+
+                # Calculer les rendements moyens et la matrice de covariance
+                mean_returns = returns_history.mean()
+                cov_matrix = returns_history.cov()
+
+                # Vérifier que la matrice n'est pas vide
+                if cov_matrix.shape[0] == 0:
+                    return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+                # Fonction objectif: maximiser le ratio de Sharpe
+                def sharpe_ratio(weights):
+                    weights = np.array(weights)
+                    portfolio_return = np.sum(mean_returns * weights)
+                    portfolio_vol = np.sqrt(weights.T @ cov_matrix.values @ weights)
+
+                    if portfolio_vol <= 0:
+                        return -1e10  # Pénalité élevée (négatif car on maximise)
+
+                    # Ratio de Sharpe (sans taux sans risque)
+                    return -portfolio_return / portfolio_vol  # Négatif car on minimise
+
+                # Contraintes: somme des poids = 1
+                constraints = [{'type': 'eq', 'fun': lambda x: np.sum(x) - 1.0}]
+
+                # Bornes: poids entre 1% et 50%
+                bounds = tuple((0.01, 0.5) for _ in range(len(cov_matrix)))
+
+                # Point de départ: équipondération
+                x0 = np.ones(len(cov_matrix)) / len(cov_matrix)
+
+                # Optimisation
+                result = sco.minimize(
+                    sharpe_ratio,
+                    x0,
+                    method='SLSQP',
+                    bounds=bounds,
+                    constraints=constraints,
+                    options={'maxiter': 1000, 'ftol': 1e-9}
+                )
+
+                if result.success:
+                    optimal_weights = result.x
+
+                    # Initialiser le dictionnaire final avec EXACTEMENT les mêmes facteurs
+                    weights_dict = {factor: 0.0 for factor in factors_list}
+
+                    # Appliquer les poids optimaux uniquement aux facteurs qui sont dans la matrice de cov
+                    for i, factor in enumerate(cov_matrix.index):
+                        if factor in weights_dict:
+                            weights_dict[factor] = optimal_weights[i]
+
+                    # Si certains facteurs n'ont pas été inclus dans l'optimisation,
+                    # leur attribuer un poids équipondéré du reste
+                    missing_factors = [f for f in factors_list if f not in cov_matrix.index]
+                    if missing_factors:
+                        remaining_weight = 1.0 - sum(weights_dict[f] for f in factors_list if f not in missing_factors)
+                        remaining_weight = max(0, remaining_weight)  # Éviter les valeurs négatives
+                        for factor in missing_factors:
+                            weights_dict[factor] = remaining_weight / len(missing_factors)
+
+                    # Normalisation finale pour assurer que la somme est exactement 1
+                    total_weight = sum(weights_dict.values())
+                    if total_weight > 0:
+                        return {k: v / total_weight for k, v in weights_dict.items()}
+                    else:
+                        return {factor: 1.0 / len(factors_list) for factor in factors_list}
+                else:
+                    print(f"Optimisation Max Sharpe échouée: {result.message}")
+                    return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+            except Exception as e:
+                print(f"Erreur dans l'optimisation Max Sharpe: {e}")
+                return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+        # Mode ERC - Equal Risk Contribution
+        elif weight_type == 'erc':
+            # Code ERC existant...
+            # Récupérer la liste des facteurs
+            factors_list = list(factors_with_t_stats.keys())
+
+            # S'il n'y a qu'un seul facteur, lui donner tout le poids
+            if len(factors_list) == 1:
+                return {factors_list[0]: 1.0}
+
+            # Séparer market des autres facteurs
+            other_factors = [f for f in factors_list if f != 'market']
+            has_market = 'market' in factors_list
+
+            # Réduire la période d'historique pour améliorer la stabilité
+            lookback_window = 52 * 15  # 15 ans de données hebdomadaires
+
+            # Récupérer les rendements historiques pour l'optimisation
+            latest_date = max(self.selector.factors_df.index)
+            history_start = pd.Timestamp(latest_date) - pd.Timedelta(weeks=lookback_window)
+
+            # Collecter les rendements
+            returns_data = {}
+
+            # Ajouter les rendements des facteurs standards
+            valid_factors = [f for f in other_factors if f in self.selector.factors_df.columns]
+            for factor in valid_factors:
+                factor_data = self.selector.factors_df.loc[
+                    self.selector.factors_df.index >= history_start, factor
+                ].dropna()
+                if not factor_data.empty:
+                    returns_data[factor] = factor_data
+
+            # Ajouter les rendements du marché si nécessaire
+            if has_market:
+                market_data = self.selector.market_return.loc[
+                    self.selector.market_return.index >= history_start
+                    ].dropna()
+                if not market_data.empty:
+                    returns_data['market'] = market_data
+
+            # Si aucun facteur valide, utiliser équipondération
+            if not returns_data:
+                print("Aucun facteur valide pour l'ERC, utilisation méthode équipondérée")
+                return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+            # Créer un DataFrame des rendements alignés
+            returns_df = pd.DataFrame(returns_data)
+            returns_history = returns_df.dropna()
+
+            if returns_history.empty or returns_history.shape[0] < 30:
+                print("Historique insuffisant pour l'ERC, utilisation méthode équipondérée")
+                return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+            # Calculer la matrice de covariance
+            cov_matrix = returns_history.cov()
+
+            # Vérifier que la matrice n'est pas vide
+            if cov_matrix.shape[0] == 0:
+                return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+            try:
+                import scipy.optimize as sco
+
+                # Nombre de facteurs dans la matrice de covariance
+                n = len(cov_matrix)
+
+                # Fonction objectif ERC améliorée
+                def erc_objective(weights):
+                    weights = np.array(weights)
+
+                    # Volatilité du portefeuille
+                    portfolio_vol = np.sqrt(weights.T @ cov_matrix.values @ weights)
+
+                    if portfolio_vol <= 0:
+                        return 1e10  # Pénalité élevée
+
+                    # Contributions marginales au risque
+                    mcr = cov_matrix.values @ weights / portfolio_vol
+
+                    # Contributions au risque
+                    rc = weights * mcr
+
+                    # Objectif: que toutes les contributions au risque soient égales
+                    target_risk = portfolio_vol / n
+                    return np.sum((rc - target_risk) ** 2)
+
+                # Contraintes: somme des poids = 1
+                constraints = [{'type': 'eq', 'fun': lambda x: np.sum(x) - 1.0}]
+
+                # Bornes: poids entre 1% et 50%
+                bounds = tuple((0.01, 0.5) for _ in range(n))
+
+                # Point de départ: équipondération
+                x0 = np.ones(n) / n
+
+                # Optimisation
+                result = sco.minimize(
+                    erc_objective,
+                    x0,
+                    method='SLSQP',
+                    bounds=bounds,
+                    constraints=constraints,
+                    options={'maxiter': 1000, 'ftol': 1e-9}
+                )
+
+                if result.success:
+                    optimal_weights = result.x
+
+                    # Initialiser le dictionnaire final avec EXACTEMENT les mêmes facteurs
+                    weights_dict = {factor: 0.0 for factor in factors_list}
+
+                    # Appliquer les poids optimaux uniquement aux facteurs qui sont dans la matrice de cov
+                    for i, factor in enumerate(cov_matrix.index):
+                        if factor in weights_dict:
+                            weights_dict[factor] = optimal_weights[i]
+
+                    # Si certains facteurs n'ont pas été inclus dans l'optimisation,
+                    # leur attribuer un poids équipondéré du reste
+                    missing_factors = [f for f in factors_list if f not in cov_matrix.index]
+                    if missing_factors:
+                        remaining_weight = 1.0 - sum(weights_dict[f] for f in factors_list if f not in missing_factors)
+                        remaining_weight = max(0, remaining_weight)  # Éviter les valeurs négatives
+                        for factor in missing_factors:
+                            weights_dict[factor] = remaining_weight / len(missing_factors)
+
+                    # Normalisation finale pour assurer que la somme est exactement 1
+                    total_weight = sum(weights_dict.values())
+                    if total_weight > 0:
+                        return {k: v / total_weight for k, v in weights_dict.items()}
+                    else:
+                        return {factor: 1.0 / len(factors_list) for factor in factors_list}
+                else:
+                    print(f"Optimisation ERC échouée: {result.message}")
+                    return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+            except Exception as e:
+                print(f"Erreur dans l'optimisation ERC: {e}")
+                return {factor: 1.0 / len(factors_list) for factor in factors_list}
+
+        # En mode équipondération, tous les facteurs ont le même poids
+        elif weight_type == 'equal':
+            total_factors = len(factors_with_t_stats)
+            return {factor: 1.0 / total_factors for factor in factors_with_t_stats}
+
+        # Mode t_stat avec poids fixe pour le marché
+        else:
+            # S'il n'y a que le marché, lui donner tout le poids
+            if len(factors_with_t_stats) == 1 and 'market' in factors_with_t_stats:
+                return {'market': 1.0}
+
+            # Séparer le marché des autres facteurs
+            other_factors = {f: t for f, t in factors_with_t_stats.items() if f != 'market'}
+
+            # Si le marché n'est pas dans les facteurs sélectionnés, ajuster market_weight à 0
+            if 'market' not in factors_with_t_stats:
+                market_weight = 0
+
+            # Pondération par t-stat pour les autres facteurs
+            total_t_stat = sum(other_factors.values())
+
+            if total_t_stat == 0:  # Protection contre division par zéro
+                other_weights = {factor: (1 - market_weight) / len(other_factors)
+                                 for factor in other_factors}
+            else:
+                other_weights = {factor: t_stat / total_t_stat * (1 - market_weight)
+                                 for factor, t_stat in other_factors.items()}
+
+            # Ajouter le marché avec son poids fixe
+            weights = other_weights.copy()
+            if 'market' in factors_with_t_stats:
+                weights['market'] = market_weight
+
             return weights
 
-    def _get_hold_returns(self, factors, start_date, end_date):
+    '''def _get_hold_returns(self, factors, start_date, end_date):
         """Récupère les rendements des facteurs pour la période de détention"""
         # Vérifie que tous les facteurs nécessaires sont présents
         valid_factors = [f for f in factors if f in self.selector.factors_df.columns]
@@ -322,7 +641,36 @@ class FactorStrategyBacktester:
 
         mask = (self.selector.factors_df.index > start_date) & \
                (self.selector.factors_df.index <= end_date)
-        return self.selector.factors_df.loc[mask, valid_factors]
+        return self.selector.factors_df.loc[mask, valid_factors]'''
+
+    def _get_hold_returns(self, factors, start_date, end_date):
+        """Récupère les rendements des facteurs pour la période de détention"""
+        # Créer un DataFrame pour stocker tous les rendements
+        all_returns = pd.DataFrame()
+
+        # Filtrer par période
+        time_mask = (self.selector.factors_df.index > start_date) & (self.selector.factors_df.index <= end_date)
+
+        # Récupérer les facteurs standards
+        standard_factors = [f for f in factors if f in self.selector.factors_df.columns]
+        if standard_factors:
+            all_returns = self.selector.factors_df.loc[time_mask, standard_factors].copy()
+
+        # Ajouter le rendement du marché si nécessaire
+        if 'market' in factors and 'market' not in all_returns.columns:
+            market_mask = (self.selector.market_return.index > start_date) & (
+                        self.selector.market_return.index <= end_date)
+            market_returns = self.selector.market_return.loc[market_mask]
+
+            if not market_returns.empty:
+                # Vérifier si all_returns est vide, sinon le joindre
+                if all_returns.empty:
+                    all_returns = pd.DataFrame(market_returns)
+                    all_returns.columns = ['market']
+                else:
+                    all_returns['market'] = market_returns.reindex(all_returns.index)
+
+        return all_returns
 
     def _generate_results(self):
         """Génère un DataFrame avec les résultats du backtest"""
@@ -379,7 +727,7 @@ if __name__ == "__main__":
     backtester = FactorStrategyBacktester(selector)
     results = backtester.backtest_strategy(
         initial_capital=100,
-        weight_type='erc'
+        weight_type='max_sharpe'
     )
 
     # Visualiser les résultats

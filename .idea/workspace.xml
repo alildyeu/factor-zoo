@@ -4,26 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f40efd86-fbd2-4ad3-81ba-10e6dc8db54c" name="Changes" comment="Exhibit tables and graphs">
+    <list default="true" id="f40efd86-fbd2-4ad3-81ba-10e6dc8db54c" name="Changes" comment="ERC weighting (strategy backtesting)">
+      <change afterPath="$PROJECT_DIR$/extensions/factor_strategy/plot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/extensions/factor_strategy/spx.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ExtensionML.py" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/ExtensionML.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ExtensionTemporelleAvancee.py" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/ExtensionTemporelleAvancee.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exhibit.py" beforeDir="false" afterPath="$PROJECT_DIR$/exhibit.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/extension_ACP.py" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/extension_ACP.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/extension_ACP_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/extension_ACP_main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/extensions_analyse_temporelle" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/extensions_analyse_temporelle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/result_temporal_avancee/temporal_adaptive_selection.csv" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/result_temporal_avancee/temporal_adaptive_selection.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/result_temporal_avancee/temporal_adaptive_selection.png" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/result_temporal_avancee/temporal_adaptive_selection.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/result_temporal_avancee/temporal_stability.csv" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/result_temporal_avancee/temporal_stability.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/result_temporal_avancee/temporal_stability.png" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/result_temporal_avancee/temporal_stability.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results_pca/comparison.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/results_pca/dendrogram.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/results_pca/evaluation.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/results_pca/loadings.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/results_pca/scree_plot.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_factor_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_factor_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_temporal_extension.py" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/run_temporal_extension.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exhibits_complete/exhibit_5_factor_persistence.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/extensions/factor_strategy/backtester.py" beforeDir="false" afterPath="$PROJECT_DIR$/extensions/factor_strategy/backtester.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,12 +25,12 @@
     &quot;assignee&quot;: &quot;yannmerakeb&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/yannmerakeb/Factor-Zoo-Zip.git&quot;,
-    &quot;accountId&quot;: &quot;e0fdf616-9207-4485-b54a-2e70b6937907&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/alildyeu/factor-zoo.git",
+    "accountId": "e0fdf616-9207-4485-b54a-2e70b6937907"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
@@ -55,11 +41,16 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python tests.Doctests in construction.executor": "Debug",
     "Python.ExtensionML.executor": "Debug",
+    "Python.backtester.executor": "Debug",
     "Python.exhibit.executor": "Debug",
     "Python.extension_ACP.executor": "Debug",
+    "Python.factor_selection.executor": "Debug",
     "Python.factor_zoo.executor": "Debug",
     "Python.main.executor": "Debug",
+    "Python.plot.executor": "Debug",
+    "Python.spx.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
@@ -133,6 +124,7 @@
       <workItem from="1746868796482" duration="2856000" />
       <workItem from="1746871770366" duration="5989000" />
       <workItem from="1746955567852" duration="12398000" />
+      <workItem from="1747410129729" duration="15474000" />
     </task>
     <task id="LOCAL-00001" summary="Refactor data loading: use the most complete CSV versions with filtering">
       <option name="closed" value="true" />
@@ -190,7 +182,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746971320218</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="ERC weighting (strategy backtesting)">
+      <option name="closed" value="true" />
+      <created>1747410280818</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1747410280819</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -211,16 +211,12 @@
     <MESSAGE value="Refactor data loading: use the most complete CSV versions with filtering" />
     <MESSAGE value="IterativeFactorSelection modified" />
     <MESSAGE value="Exhibit tables and graphs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Exhibit tables and graphs" />
+    <MESSAGE value="ERC weighting (strategy backtesting)" />
+    <option name="LAST_COMMIT_MESSAGE" value="ERC weighting (strategy backtesting)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
-          <line>36</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/extensions/extension_ACP.py</url>
           <line>70</line>
@@ -237,11 +233,6 @@
           <option name="timeStamp" value="26" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
-          <line>35</line>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/exhibit.py</url>
           <line>462</line>
           <option name="timeStamp" value="31" />
@@ -256,14 +247,59 @@
           <line>373</line>
           <option name="timeStamp" value="33" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/factor_selection.py</url>
+          <line>384</line>
+          <option name="timeStamp" value="180" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/factor_selection.py</url>
+          <line>382</line>
+          <option name="timeStamp" value="181" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/extensions/factor_strategy/backtester.py</url>
+          <line>742</line>
+          <option name="timeStamp" value="195" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/extensions/factor_strategy/backtester.py</url>
+          <line>76</line>
+          <option name="timeStamp" value="221" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/extensions/factor_strategy/plot.py</url>
+          <line>62</line>
+          <option name="timeStamp" value="234" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/extensions/factor_strategy/spx.py</url>
+          <line>14</line>
+          <option name="timeStamp" value="257" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/extensions/factor_strategy/spx.py</url>
+          <line>59</line>
+          <option name="timeStamp" value="259" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Factor_Zoo_Zip$factor_zoo.coverage" NAME="factor_zoo Coverage Results" MODIFIED="1746876327541" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/factor_zoo$main.coverage" NAME="main Coverage Results" MODIFIED="1747341080833" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/factor_zoo$comparison_to_sp500.coverage" NAME="comparison_to_sp500 Coverage Results" MODIFIED="1747334150927" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/extensions/factor_strategy" />
+    <SUITE FILE_PATH="coverage/factor_zoo$rolling_window_factor_selection.coverage" NAME="rolling_window_factor_selection Coverage Results" MODIFIED="1747313491938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/factor_zoo$backtester.coverage" NAME="backtester Coverage Results" MODIFIED="1747422512807" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/extensions/factor_strategy" />
+    <SUITE FILE_PATH="coverage/Factor_Zoo_Zip$ExtensionML.coverage" NAME="ExtensionML Coverage Results" MODIFIED="1746957135920" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/factor_zoo$plot.coverage" NAME="plot Coverage Results" MODIFIED="1747428557785" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/extensions/factor_strategy" />
+    <SUITE FILE_PATH="coverage/factor_zoo$global_factor_analysis.coverage" NAME="global_factor_analysis Coverage Results" MODIFIED="1747340260918" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Factor_Zoo_Zip$extension_ACP.coverage" NAME="extension_ACP Coverage Results" MODIFIED="1746967255353" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Factor_Zoo_Zip$main.coverage" NAME="main Coverage Results" MODIFIED="1746974654453" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Factor_Zoo_Zip$ExtensionML.coverage" NAME="ExtensionML Coverage Results" MODIFIED="1746957135920" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/factor_zoo$spx.coverage" NAME="spx Coverage Results" MODIFIED="1747464925006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/extensions/factor_strategy" />
+    <SUITE FILE_PATH="coverage/factor_zoo$Doctests_in_construction.coverage" NAME="Doctests in construction Coverage Results" MODIFIED="1747415869193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/opt/anaconda3/envs/python_env/lib/python3.10/site-packages/pandas/core/internals" />
+    <SUITE FILE_PATH="coverage/factor_zoo$data_loader.coverage" NAME="data_loader Coverage Results" MODIFIED="1747258865818" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Factor_Zoo_Zip$exhibit.coverage" NAME="exhibit Coverage Results" MODIFIED="1746974869705" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/factor_zoo$factor_selection.coverage" NAME="factor_selection Coverage Results" MODIFIED="1747342480015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
